@@ -13,19 +13,26 @@ static inline int _abr_grow_capacity(int old)
 static inline void *_abr_resize_array(void *ptr, size_t old_size, 
     size_t new_size)
 {
+    
     if (new_size == 0) {
-        free(ptr);
+        if (ptr == abr_nullptr) {
+            LOG("(fatal) trying to free a null pointer!\n")
+            free(ptr);
+        }
         return abr_nullptr;
     }
 
     void *res = realloc(ptr, new_size);
     BUG_ON(res == abr_nullptr, "realloc on block failed!");
+
     return res;
 }
 #define abr_mem_grow_array(type, ptr, old_count, new_count) \
-    _abr_resize_array((ptr), (old_count) * sizeof(type), (new_count) * sizeof(type))
+        _abr_resize_array((ptr),   \
+            (old_count) * sizeof(type),  \
+            (new_count) * sizeof(type)) \
 
 #define abr_mem_free_array(ptr) \
-    _abr_resize_array((ptr), 0, 0)
+        _abr_resize_array((ptr), 0, 0); \
 
 #endif

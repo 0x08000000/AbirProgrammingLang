@@ -32,6 +32,6 @@ void abr_bytecode_free_block(struct abr_bytecode_block *blk)
     if (blk == abr_nullptr)
         return;
     
-    abr_mem_free_array(blk);
+    abr_mem_free_array(blk->code);
     abr_bytecode_init_block(blk);
 }
