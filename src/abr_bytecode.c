@@ -27,6 +27,16 @@ void abr_bytecode_write_opcode(struct abr_bytecode_block *blk, op_code code)
     blk->count++;
 }
 
+int abr_bytecode_add_constant(struct abr_bytecode_block *blk, abr_value val)
+{
+    BUG_ON(blk == NULL, "blk cannot be null!");    
+
+    abr_val_write_constant(&blk->constants, val);
+    
+    /* return index of element */
+    return blk->constants.count - 1;
+}
+
 void abr_bytecode_free_block(struct abr_bytecode_block *blk)
 {
     if (blk == abr_nullptr)

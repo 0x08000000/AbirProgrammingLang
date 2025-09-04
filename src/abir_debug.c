@@ -2,6 +2,8 @@
 
 static int basic_instruction(struct abr_bytecode_block *blk, 
     int opcode, int offset);
+static int constant_instruction(struct abr_bytecode_block *blk, 
+    int opcode, int offset);
 
 #define DEF_OPCODE_INFO(n_opcode, n_jmp, fn_dbg_ptr) \
         {.opcode = (n_opcode), .opcode_str = #n_opcode, .n_jump=(n_jmp),    \
@@ -14,7 +16,8 @@ struct
     int (*fn_dbg)(struct abr_bytecode_block *blk, int opcode, int offset);
 } _opcode_dbg_info[] = 
 {
-    [OP_RETURN] = DEF_OPCODE_INFO(OP_RETURN, 1, basic_instruction),
+    [OP_CONSTANT] = DEF_OPCODE_INFO(OP_CONSTANT, 2, constant_instruction),
+    [OP_RETURN]   = DEF_OPCODE_INFO(OP_RETURN, 1, basic_instruction),
 };
 
 static int basic_instruction(struct abr_bytecode_block *blk, 
@@ -24,6 +27,19 @@ static int basic_instruction(struct abr_bytecode_block *blk,
 
     printf("%s\n\r", _opcode_dbg_info[opcode].opcode_str);
     return offset +  _opcode_dbg_info[opcode].n_jump;
+}
+
+static int constant_instruction(struct abr_bytecode_block *blk, 
+    int opcode, int offset)
+{
+    BUG_ON(blk == abr_nullptr, "blk is null!");
+
+    uint8_t constant_idx = blk->code[offset + 1];
+    printf("%-16s %4d '\t", _opcode_dbg_info[opcode].opcode_str, constant_idx);
+    printf("%g", blk->constants.values_list[constant_idx]);
+    printf("'\n");
+
+    return offset + _opcode_dbg_info[opcode].n_jump;
 }
 
 void abr_dbg_dissasemble_block(struct abr_bytecode_block *blk, const char *name)
